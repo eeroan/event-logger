@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event logger</title>
+  <style>
+    html {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    body {
+      margin: 0;
+      font-family: "Courier New", serif;
+      font-size: 10px;
+      position: absolute;
+      white-space: pre-wrap;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ccc;
+    }
+    .green { color: green; font-weight: normal;}
+    .blue { color: blue; font-weight: normal;}
+    #report {
+      padding: 5px 10px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 80%;
+      background: #fff;
+      overflow: scroll;
+    }
+  </style>
+</head>
+<div id="report"></div>
+<body>
+
+<script type="application/javascript">
+  const eventTypes = [
+    "abort",
+    "abort",
+    "abort",
+    "afterprint",
+    "animationcancel",
+    "animationend",
+    "animationiteration",
+    "animationstart",
+    "appinstalled",
+    "audioprocess",
+    "audioend ",
+    "audiostart ",
+    "beforeprint",
+    "beforeunload",
+    "beginEvent",
+    "blocked",
+    "blur",
+    "boundary ",
+    "canplay",
+    "canplaythrough",
+    "change",
+    "chargingchange",
+    "chargingtimechange",
+    "click",
+    "close",
+    "complete",
+    "complete",
+    "compositionend",
+    "compositionstart",
+    "compositionupdate",
+    "contextmenu",
+    "copy",
+    "cut",
+    "dblclick",
+    "devicechange",
+    "devicemotion",
+    "deviceorientation",
+    "dischargingtimechange",
+    "DOMActivate ",
+    "DOMAttributeNameChanged ",
+    "DOMAttrModified ",
+    "DOMCharacterDataModified ",
+    "DOMContentLoaded",
+    "DOMElementNameChanged ",
+    "DOMFocusIn ",
+    "DOMFocusOut ",
+    "DOMNodeInserted ",
+    "DOMNodeInsertedIntoDocument ",
+    "DOMNodeRemoved ",
+    "DOMNodeRemovedFromDocument ",
+    "DOMSubtreeModified ",
+    "drag",
+    "dragend",
+    "dragenter",
+    "dragleave",
+    "dragover",
+    "dragstart",
+    "drop",
+    "durationchange",
+    "emptied",
+    "end ",
+    "end ",
+    "ended",
+    "ended",
+    "endEvent",
+    "error",
+    "error",
+    "error",
+    "error",
+    "error",
+    "error ",
+    "error",
+    "focus",
+    "focusin",
+    "focusout",
+    "fullscreenchange",
+    "fullscreenerror",
+    "gamepadconnected",
+    "gamepaddisconnected",
+    "gotpointercapture",
+    "hashchange",
+    "lostpointercapture",
+    "input",
+    "invalid",
+    "keydown",
+    "keypress ",
+    "keyup",
+    "languagechange ",
+    "levelchange",
+    "load",
+    "load",
+    "loadeddata",
+    "loadedmetadata",
+    "loadend",
+    "loadstart",
+    "mark ",
+    "message",
+    "message",
+    "message",
+    "message",
+    "messageerror",
+    "message ",
+    "mousedown",
+    "mouseenter",
+    "mouseleave",
+    "mousemove",
+    "mouseout",
+    "mouseover",
+    "mouseup",
+    "nomatch ",
+    "notificationclick",
+    "offline",
+    "online",
+    "open",
+    "open",
+    "orientationchange",
+    "pagehide",
+    "pageshow",
+    "paste",
+    "pause",
+    "pause ",
+    "pointercancel",
+    "pointerdown",
+    "pointerenter",
+    "pointerleave",
+    "pointerlockchange",
+    "pointerlockerror",
+    "pointermove",
+    "pointerout",
+    "pointerover",
+    "pointerup",
+    "play",
+    "playing",
+    "popstate",
+    "progress",
+    "push",
+    "pushsubscriptionchange",
+    "ratechange",
+    "readystatechange",
+    "repeatEvent",
+    "reset",
+    "resize",
+    "resourcetimingbufferfull",
+    "result ",
+    "resume ",
+    "scroll",
+    "seeked",
+    "seeking",
+    "select",
+    "selectstart ",
+    "selectionchange ",
+    "show",
+    "slotchange",
+    "soundend ",
+    "soundstart ",
+    "speechend ",
+    "speechstart ",
+    "stalled",
+    "start ",
+    "start",
+    "storage",
+    "submit",
+    "success",
+    "suspend",
+    "SVGAbort",
+    "SVGError",
+    "SVGLoad",
+    "SVGResize",
+    "SVGScroll",
+    "SVGUnload",
+    "SVGZoom",
+    "timeout",
+    "timeupdate",
+    "touchcancel",
+    "touchend",
+    "touchmove",
+    "touchstart",
+    "transitionend",
+    "unload",
+    "upgradeneeded",
+    "userproximity",
+    "voiceschanged ",
+    "versionchange",
+    "visibilitychange",
+    "volumechange",
+    "waiting",
+    "wheel"
+  ]
+  const ignoredFields = [
+    "type",
+    "isTrusted",
+    "composedPath",
+    "stopPropagation",
+    "stopImmediatePropagation",
+    "preventDefault",
+    "initEvent",
+    "type",
+    "target",
+    "srcElement",
+    "currentTarget",
+    "eventPhase",
+    "bubbles",
+    "cancelable",
+    "returnValue",
+    "defaultPrevented",
+    "composed",
+    "timeStamp",
+    "cancelBubble",
+    "originalTarget",
+    "explicitOriginalTarget",
+    "NONE",
+    "CAPTURING_PHASE",
+    "AT_TARGET",
+    "BUBBLING_PHASE",
+    "ALT_MASK",
+    "CONTROL_MASK",
+    "SHIFT_MASK",
+    "META_MASK"
+  ]
+  const reportEl = document.getElementById('report')
+  eventTypes.forEach(eventType => document.addEventListener(eventType, event => {
+    reportEl.innerHTML = printEventFields(event) + reportEl.innerHTML
+  }))
+
+  function printEventFields(event) {
+    const fields = []
+    if (event.target !== document.body) return ''
+    for(const i in event) {
+      if (['function', 'object'].includes(typeof event[i]) || ignoredFields.includes(i) || /^(MOZ|DOM|WEBKIT)/.test(i.toUpperCase())) {
+        continue
+      }
+      fields.push('<b class="blue">' + i + '</b>=<b class="green">' + event[i] + '</b>')
+    }
+    return '<b class="black">' + event.type + '</b>: ' + fields.join(', ') + '\n'
+  }
+</script>
+</body>
+</html>
